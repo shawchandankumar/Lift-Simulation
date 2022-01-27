@@ -15,6 +15,7 @@ body {
     justify-content: center;
     padding: 10px;
     margin-bottom: 30px;
+    /* margin-bottom: 4vh; */
 }
 
 #main_heading {
@@ -36,7 +37,6 @@ body {
 }
 
 #heading button:focus {
-    outline: 0;
     transform: scale(0.90);
 }
 
@@ -47,10 +47,6 @@ label {
 .inputs input {
     width: 50px;
     border: 1px solid;
-}
-
-input:focus {
-    outline: 0;
 }
 
 #floors_lifts {
@@ -108,6 +104,7 @@ input:focus {
     height: 120px;
     background-color: #fff;
     position: absolute;
+    top: 0;
 }
 
 .lifts .gate {
@@ -131,6 +128,11 @@ input:focus {
     animation-name: gate_open_close;
 }
 
+.lifts.running {
+    transition-property: transform;
+    transition-timing-function: ease;
+}
+
 @keyframes gate_open_close {
     from {
         width: 50%;
@@ -140,12 +142,55 @@ input:focus {
         width: 0%;
     }
 
-    100% {
+    to {
         width: 50%;
     }
 }
 
-.lifts.running {
-    transition-property: top;
-    transition-timing-function: ease-in-out;
+@media (max-width: 1200px) {
+
+    #main_heading {
+        font-size: 40px;
+        margin: 5px;
+    }
+
+    .floor {
+        height: 95px;
+        padding: 15px;
+    }
+
+    .lifts {
+        width: 50px;
+        height: 95px;
+    }
+
+    .button {
+        padding: 4px;
+        width: 4%;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+
+    #main_heading {
+        font-size: 35px;
+        margin: 5px;
+    }
+
+    .floor {
+        height: 70px;
+        padding: 10px;
+    }
+
+    .lifts {
+        width: 40px;
+        height: 70px;
+    }
+
+    .button {
+        padding: 4px;
+        width: 4%;
+        font-size: 10px;
+    }
 }

@@ -22,12 +22,16 @@ let curLiftPos = [];
 // whether the ith lift is busy
 let isBusy = [];
 
+let num_floors = 2;
+let first_floor;
+
 // Initializing with 2 floors and 1 lifts
 refresh(2, 1);
 
 sbmit_lift_floor_num.addEventListener('click', (e) => {
     const floorVal = floor_num.value;
     const liftVal = lift_num.value;
+    num_floors = floorVal;
     refresh(floorVal, liftVal);
     e.preventDefault();
 });
@@ -51,6 +55,7 @@ function refresh(floorVal, liftVal) {
             <p>${floorNo}</p>
         `;
         floors_space.appendChild(newFloor);
+        first_floor = newFloor;
     }
 
     // Every time the no of floors changes it gets chnaged
@@ -67,12 +72,13 @@ function refresh(floorVal, liftVal) {
             <div class="gate" id="left_gate"></div>
             <div class="gate" id="right_gate"></div>
         `;
-        floors_space.appendChild(newLift);
-        newLift.style.left = i*15+"%";
-        newLift.style.top = ((floorVal - 1)*floor_height)+'px';
 
+        first_floor.appendChild(newLift);
+        newLift.style.left = i*15+"%";
+        // newLift.style.top = ((floorVal - 1)*floor_height)+'px';
+        
         // It tells ith lift is present in which floor currently
-        curLiftPos[i - 1]=((floorVal - 1)*floor_height);
+        curLiftPos[i - 1] = ((floorVal - 1)*floor_height);
 
         // whether this lift is busy or free
         // intially every lift is free
@@ -94,17 +100,6 @@ function refresh(floorVal, liftVal) {
             }, 5);
         });
     });
-}
-
-// This fucntion returns the gap between the floor and
-// the nearby lift.
-function scheduleLift(btn, freeLift) {
-    // the floors button pressed
-    const parentBtn = btn.parentElement;
-
-    // Floor top position w.r.t floors_space
-    const topPos = parentBtn.offsetTop;
-    return ((topPos - curLiftPos[freeLift]) / parentBtn.offsetHeight);
 }
 
 // returns which lift is free
@@ -132,28 +127,34 @@ function findFreeLift(btn) {
 
 function moveLift(btn, freeLift) {
 
-    // finding the gap between lift and the floor
-    let gapLiftToFloor = scheduleLift(btn, freeLift);
+    // previous position
+    let prevPos = curLiftPos[freeLift];
 
-    curLiftPos[freeLift] = btn.parentElement.offsetTop;
-    console.log(freeLift, curLiftPos[freeLift]);
-    // changing the lift's state from stopping to running
-    allLifts[freeLift].classList.add('running');
+    let floor_height = btn.parentElement.offsetHeight;
+    let to = btn.parentElement.offsetTop;
+    curLiftPos[freeLift] = to;
 
+    let time = Math.abs(preCurGap(btn, prevPos));
     // taking the lift to the specified floor
-    allLifts[freeLift].style.top = curLiftPos[freeLift]+'px';
-    allLifts[freeLift].style.transitionDuration = Math.abs(gapLiftToFloor)+'s';
+    allLifts[freeLift].style.transitionDuration = ` ${time}s`;
+    allLifts[freeLift].classList.toggle('running');
+    allLifts[freeLift].style.transform = `translateY(${-(((num_floors - 1)
+     - to / floor_height) * 100)}%)`;
 
     setTimeout(() => {
         // Lift stopped
-        allLifts[freeLift].classList.remove('running');
-
+        allLifts[freeLift].classList.toggle('running');
         // scheduling the lift for gate open and close
         allLifts[freeLift].classList.toggle('stopped');
         setTimeout(() => {
             allLifts[freeLift].classList.toggle('stopped');
             isBusy[freeLift] = false;
         }, 5000);
-    }, (Math.abs(gapLiftToFloor)+0.2)*1000);
+    }, time*1000);
     
+}
+
+function preCurGap(btn, pre) {
+    let gap = (btn.parentElement.offsetTop - pre) / btn.parentElement.offsetHeight;
+    return gap;
 }
